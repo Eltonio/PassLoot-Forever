@@ -1,0 +1,8 @@
+package-as: PassLootForever
+
+ignore:
+  - screenshots
+  - media
+  - .github
+  - .gitignore
+  - .pkgmeta

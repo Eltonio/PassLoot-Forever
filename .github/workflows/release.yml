@@ -1,0 +1,25 @@
+# Builds the addon zip and uploads it to CurseForge when a version tag is pushed (e.g. v5.0.8).
+# Needs: the repository secret CF_API_KEY, and "## X-Curse-Project-ID: <id>" in PassLootForever.toc.
+name: Package and release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Package and upload
+        uses: BigWigsMods/packager@v2
