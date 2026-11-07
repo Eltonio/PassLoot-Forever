@@ -3,6 +3,9 @@ package-as: PassLootForever
 ignore:
   - screenshots
   - media
-  - .github
   - .gitignore
   - .pkgmeta
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown

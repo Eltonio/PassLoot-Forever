@@ -9,7 +9,7 @@ Same core purpose: automatically roll **Need / Disenchant / Greed / Pass** on gr
 
 **Author of this version: Doel** - based on PassLoot, by nebula169.
 
-![Rules tab](screenshots/rules-en.jpg)
+![](screenshots/rules-en.jpg)
 
 ## Installation
 
@@ -36,7 +36,7 @@ See `USER_GUIDE.md` for a step-by-step guide.
 ## Available conditions
 
 Quality, item type (class/subclass), equipment slot, usable by my class (now / later / never),
-item level, **item level gain vs equipped**, **recipe status** (not learned yet and my profession / already learned / not my profession),
+item level, **item level gain vs equipped**, **stat score gain vs equipped** (stat weights per class and spec), **recipe status** (not learned yet and my profession / already learned / not my profession),
 required level, binding, name (contains / exact / starts with / pattern), vendor price (in gold), amount owned,
 roll option available, instance type, group type, zone name.
 
@@ -51,6 +51,7 @@ Other clients use English.
 
 ## Changelog
 
+- **5.1.0**: new condition **Stat score gain vs equipped**: compares an item with your gear stat by stat, with weights per class and spec (Score button in the Test tab, which also shows the score and its detail); `/plf diag` checks GetItemStats; layout fixes for larger fonts and some resolutions (option rows, cut labels shown in a tooltip, 1-pixel borders that could disappear).
 - **5.0.7**: Options tab: removed the profile help sentence.
 - **5.0.6**: profile **export / import** (Options tab): a text to copy and share, imported as a new profile; taller window (less cramped Options tab, one more row in lists); close buttons drawn exactly centred.
 - **5.0.5**: Test tab: Shift + click an item puts its link in the box and runs the test right away (works with the newer chat link system); items can also be dragged onto the box; link to the original PassLoot added to the user guides.
@@ -72,6 +73,6 @@ Other clients use English.
 
 ## Files
 
-`Locale.lua` (en/fr) · `Core.lua` (API, profiles, commands) · `Share.lua` (profile export / import) · `Items.lua` (item data, async cache, tooltip reading) ·
+`Locale.lua` (en/fr) · `Core.lua` (API, profiles, commands) · `Share.lua` (profile export / import) · `Items.lua` (item data, async cache, tooltip reading) · `Stats.lua` (stat score) ·
 `Filters.lua` (conditions) · `Engine.lua` (rules, rolls, journal, test) · `UI.lua` (window) · `Minimap.lua` (minimap button).
 No dependencies (no Ace3). Lua 5.1 only.

@@ -55,6 +55,20 @@ The addon reads what the game displays on the item ("Already known") and compare
 a recipe for your profession that is too hard for you right now still counts as "not learned yet, my profession".
 Recipe books without a profession ("Book" type) count as being for your profession.
 
+### The stat score: "is it better than my gear?"
+
+The **Stat score gain vs equipped** condition compares the dropped item with what you wear in the same slot,
+**stat by stat**, not just by item level. Each stat has a weight for your class and spec
+(for an Arms warrior: Strength ×1, Stamina ×0.25, weapon DPS ×3...). The addon adds up "value × weight"
+for both items and gives the difference in percent.
+
+- Pick your spec with the **Score** button of the **Test** tab (remembered per character).
+- Example rule: **Usable by my class** = *Yes, right now* + **Stat score gain vs equipped** > *10 %* → Need.
+- An empty slot always counts as an upgrade. Rings and trinkets: compared with the weaker of the two.
+  Two-handed weapon: compared with main hand + off hand.
+- Enchants on your gear and special effects ("Equip: ...") are not counted: check your rules in the **Test** tab,
+  which shows the score and the detail of each stat.
+
 ![Rules tab: the rule list on the left, the selected rule on the right (actions and conditions).](screenshots/rules-en.jpg)
 
 ## 4. Test without risk

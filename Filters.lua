@@ -284,6 +284,14 @@ Add{ key = "upgrade", label = L["Item level gain vs equipped"], kind = "number",
     return gain ~= nil and Compare(gain, v.op, v.n)
   end }
 
+Add{ key = "statGain", label = L["Stat score gain vs equipped"], kind = "number", unit = "%",
+  help = L["Stat score of the drop compared with the gear it would replace, in percent. Uses the stat weights chosen with the Score button of the Test tab. Empty slot counts as an upgrade. Gear only."],
+  default = { op = ">", n = 5 },
+  eval = function(item, ctx, v)
+    local gain = ns.Stats and ns.Stats.Gain(item)
+    return gain ~= nil and Compare(gain, v.op, v.n)
+  end }
+
 Add{ key = "reqLevel", label = L["Required level"], kind = "number", help = L["Level required to use the item."],
   default = { op = "<=", n = 60 },
   eval = function(item, ctx, v) return Compare(item.minLevel, v.op, v.n) end }

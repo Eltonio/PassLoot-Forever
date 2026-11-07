@@ -55,6 +55,20 @@ L'addon lit ce que le jeu affiche sur l'objet (« Déjà connu ») et compare av
 une recette de votre métier trop difficile pour l'instant est quand même « pas encore apprise, de mon métier ».
 Les livres de recette sans métier (type « Livre ») comptent comme étant de votre métier.
 
+### Le score de stats : « est-ce mieux que mon équipement ? »
+
+La condition **Gain de score de stats vs équipé** compare l'objet qui tombe avec celui que vous portez au même emplacement,
+**stat par stat**, et pas seulement par niveau d'objet. Chaque stat a un poids selon votre classe et votre spécialité
+(par exemple pour un guerrier Armes : Force ×1, Endurance ×0,25, DPS de l'arme ×3...). L'addon additionne « valeur × poids »
+pour les deux objets et donne l'écart en pourcentage.
+
+- Choisissez votre spécialité avec le bouton **Score** de l'onglet **Tester** (retenu pour chaque personnage).
+- Exemple de règle : **Utilisable par ma classe** = *Oui, tout de suite* + **Gain de score de stats vs équipé** > *10 %* → Besoin.
+- Un emplacement vide compte toujours comme une amélioration. Bagues et bijoux : comparaison avec le moins bon des deux.
+  Arme à deux mains : comparaison avec arme principale + main gauche.
+- Les enchantements de votre équipement et les effets spéciaux (« Équipé : ... ») ne sont pas comptés : vérifiez vos règles dans l'onglet **Tester**,
+  qui affiche le score et le détail de chaque stat.
+
 ![Onglet Règles : la liste des règles à gauche, la règle sélectionnée à droite (actions et conditions).](screenshots/regles.jpg)
 
 ## 4. Tester sans risque

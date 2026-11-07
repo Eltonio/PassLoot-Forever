@@ -4,7 +4,7 @@ local addonName, ns = ...
 local L = ns.L
 
 ns.name = addonName
-ns.VERSION = "5.0.7"
+ns.VERSION = "5.1.0"
 ns.AUTHOR = "Doel"
 
 ------------------------------------------------------------------------
@@ -107,6 +107,7 @@ API.GetItemInfo = pick(C_Item and C_Item.GetItemInfo, _G.GetItemInfo)
 API.GetItemInfoInstant = pick(C_Item and C_Item.GetItemInfoInstant, _G.GetItemInfoInstant)
 API.RequestItemLoad = pick(C_Item and C_Item.RequestLoadItemDataByID)
 API.GetDetailedItemLevelInfo = pick(C_Item and C_Item.GetDetailedItemLevelInfo, _G.GetDetailedItemLevelInfo)
+API.GetItemStats = pick(C_Item and C_Item.GetItemStats, _G.GetItemStats)
 API.GetItemCount = pick(C_Item and C_Item.GetItemCount, _G.GetItemCount)
 API.GetItemClassInfo = pick(C_Item and C_Item.GetItemClassInfo, _G.GetItemClassInfo)
 API.GetItemSubClassInfo = pick(C_Item and C_Item.GetItemSubClassInfo, _G.GetItemSubClassInfo)
@@ -137,6 +138,23 @@ function ns.Diagnostics()
   add("C_Item.GetDetailedItemLevelInfo", API.GetDetailedItemLevelInfo)
   add("C_Item.GetItemCount", API.GetItemCount)
   add("GetItemClassInfo / GetItemSubClassInfo", API.GetItemClassInfo and API.GetItemSubClassInfo)
+  add("GetItemStats (stat score)", API.GetItemStats)
+  if API.GetItemStats and GetInventoryItemLink then
+    -- show what the client returns for one equipped item, to check the stat names
+    for _, slot in ipairs({ 5, 7, 16, 1 }) do
+      local link = GetInventoryItemLink("player", slot)
+      if link and not ns.IsSecret(link) then
+        local ok, raw = pcall(API.GetItemStats, link)
+        local keys = {}
+        if ok and type(raw) == "table" then
+          for k, v in pairs(raw) do keys[#keys + 1] = tostring(k) .. "=" .. tostring(v) end
+        end
+        table.sort(keys)
+        lines[#lines + 1] = "    " .. link .. ": " .. (#keys > 0 and table.concat(keys, ", ") or "(no stats returned)")
+        break
+      end
+    end
+  end
   add("issecretvalue", type(issecretvalue) == "function")
   add("Tooltip reading (C_TooltipInfo.GetHyperlink or GameTooltip)", (C_TooltipInfo and C_TooltipInfo.GetHyperlink) or (CreateFrame and true))
   add("Profession list (GetProfessions or GetSkillLineInfo)", (GetProfessions and GetProfessionInfo) or (GetNumSkillLines and GetSkillLineInfo))

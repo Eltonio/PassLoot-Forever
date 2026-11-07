@@ -9,7 +9,7 @@ Même fonction première : jouer automatiquement **Besoin / Désenchantement / C
 
 **Auteur de cette version : Doel** - d'après PassLoot, par nebula169.
 
-![Onglet Règles](screenshots/regles.jpg)
+![](screenshots/regles.jpg)
 
 ## Installation
 
@@ -36,7 +36,7 @@ Voir `MODE_EMPLOI.md` pour un guide pas à pas.
 ## Conditions disponibles
 
 Qualité, type d'objet (classe/sous-classe), emplacement, utilisable par ma classe (maintenant / plus tard / jamais),
-niveau d'objet, **gain de niveau d'objet vs équipé**, **statut de la recette** (pas encore apprise de mon métier / déjà apprise / pas de mon métier),
+niveau d'objet, **gain de niveau d'objet vs équipé**, **gain de score de stats vs équipé** (poids des stats par classe et spécialité), **statut de la recette** (pas encore apprise de mon métier / déjà apprise / pas de mon métier),
 niveau requis, liaison, nom (contient / exact / commence par / motif), prix de vente (en or), quantité possédée,
 option de jet disponible, type d'instance, type de groupe, nom de la zone.
 
@@ -51,6 +51,7 @@ Les autres clients utilisent l'anglais.
 
 ## Historique
 
+- **5.1.0** : nouvelle condition **Gain de score de stats vs équipé** : compare un objet à votre équipement stat par stat, avec des poids par classe et spécialité (bouton Score de l'onglet Tester, qui affiche aussi le score et son détail) ; `/plf diag` vérifie GetItemStats ; corrections d'affichage pour les grandes polices et certaines résolutions (lignes des options, textes coupés affichés en infobulle, bordures d'1 pixel qui pouvaient disparaître).
 - **5.0.7** : onglet Options : phrase d'aide des profils retirée.
 - **5.0.6** : **export / import de profils** (onglet Options) : un texte à copier et partager, importé comme nouveau profil ; fenêtre plus haute (onglet Options moins tassé, une ligne de plus dans les listes) ; croix de fermeture parfaitement centrées.
 - **5.0.5** : onglet Test : Maj + clic sur un objet met son lien dans la zone et lance le test aussitôt (compatible avec le nouveau système de liens du chat) ; on peut aussi glisser un objet dans la zone ; lien vers le PassLoot d'origine ajouté aux modes d'emploi.
@@ -73,6 +74,6 @@ Les autres clients utilisent l'anglais.
 
 ## Fichiers
 
-`Locale.lua` (en/fr) · `Core.lua` (API, profils, commandes) · `Share.lua` (export / import de profils) · `Items.lua` (données d'objets, cache asynchrone, lecture des infobulles) ·
+`Locale.lua` (en/fr) · `Core.lua` (API, profils, commandes) · `Share.lua` (export / import de profils) · `Items.lua` (données d'objets, cache asynchrone, lecture des infobulles) · `Stats.lua` (score de stats) ·
 `Filters.lua` (conditions) · `Engine.lua` (règles, jets, journal, test) · `UI.lua` (fenêtre) · `Minimap.lua` (bouton de la minicarte).
 Aucune dépendance (pas d'Ace3). Lua 5.1 uniquement.

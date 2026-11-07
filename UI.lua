@@ -24,16 +24,37 @@ local function Rect(parent, layer, c)
   return t
 end
 
+-- 1-point borders can fall under one real pixel with some resolutions / UI scales, and the game then
+-- rounds some edges away. Every edge is sized to at least one physical pixel, and resized when the
+-- scale changes.
+local allEdges = {}
+local function SizeEdge(t)
+  local horizontal = t.horizontal
+  if PixelUtil and PixelUtil.SetHeight and PixelUtil.SetWidth then
+    local ok = pcall(horizontal and PixelUtil.SetHeight or PixelUtil.SetWidth, t, 1, 1)
+    if ok then return end
+  end
+  if horizontal then t:SetHeight(1) else t:SetWidth(1) end
+end
+
+function UI.RefreshEdges()
+  for i = 1, #allEdges do SizeEdge(allEdges[i]) end
+end
+
 local function Border(frame, c)
   c = c or COL.border
-  local top = Rect(frame, "BORDER", c)
-  top:SetPoint("TOPLEFT"); top:SetPoint("TOPRIGHT"); top:SetHeight(1)
-  local bottom = Rect(frame, "BORDER", c)
-  bottom:SetPoint("BOTTOMLEFT"); bottom:SetPoint("BOTTOMRIGHT"); bottom:SetHeight(1)
-  local left = Rect(frame, "BORDER", c)
-  left:SetPoint("TOPLEFT"); left:SetPoint("BOTTOMLEFT"); left:SetWidth(1)
-  local right = Rect(frame, "BORDER", c)
-  right:SetPoint("TOPRIGHT"); right:SetPoint("BOTTOMRIGHT"); right:SetWidth(1)
+  local function edge(p1, p2, horizontal)
+    local t = Rect(frame, "BORDER", c)
+    t:SetPoint(p1); t:SetPoint(p2)
+    t.horizontal = horizontal
+    SizeEdge(t)
+    allEdges[#allEdges + 1] = t
+    return t
+  end
+  local top = edge("TOPLEFT", "TOPRIGHT", true)
+  local bottom = edge("BOTTOMLEFT", "BOTTOMRIGHT", true)
+  local left = edge("TOPLEFT", "BOTTOMLEFT", false)
+  local right = edge("TOPRIGHT", "BOTTOMRIGHT", false)
   frame.edges = { top, bottom, left, right }
   frame.SetBorderColor = function(self, color)
     for _, e in ipairs(self.edges) do e:SetColorTexture(color[1], color[2], color[3], color[4] or 1) end
@@ -53,6 +74,17 @@ local function SetColor(fs, c) fs:SetTextColor(c[1], c[2], c[3]) end
 
 local function ShowIf(frame, cond)
   if cond then frame:Show() else frame:Hide() end
+end
+
+-- True when a single-line font string does not show its whole text.
+local function IsCut(fs)
+  if not fs or not fs:IsShown() then return false end
+  if fs.IsTruncated then
+    local ok, cut = pcall(fs.IsTruncated, fs)
+    if ok and cut ~= nil then return cut and true or false end
+  end
+  local w = fs:GetWidth() or 0
+  return w > 0 and (fs:GetStringWidth() or 0) > w + 1
 end
 
 local function AttachTip(frame, title, text)
@@ -75,14 +107,27 @@ local function Button(parent, text, w, h, onClick)
   b.label = Label(b, text, "GameFontHighlightSmall", COL.text, "CENTER")
   b.label:SetPoint("LEFT", 4, 0)
   b.label:SetPoint("RIGHT", -4, 0)
+  b.label:SetWordWrap(false) -- never spill on two lines over the neighbours; "..." instead
   b.baseColor = COL.panel
   b.SetLabel = function(self, t) self.label:SetText(t) end
   b.SetBase = function(self, c)
     self.baseColor = c
     self.bg:SetColorTexture(c[1], c[2], c[3], c[4] or 1)
   end
-  b:SetScript("OnEnter", function(self) self.bg:SetColorTexture(COL.hover[1], COL.hover[2], COL.hover[3], 1) end)
-  b:SetScript("OnLeave", function(self) self:SetBase(self.baseColor) end)
+  b:SetScript("OnEnter", function(self)
+    self.bg:SetColorTexture(COL.hover[1], COL.hover[2], COL.hover[3], 1)
+    if GameTooltip and IsCut(self.label) then
+      GameTooltip:SetOwner(self, "ANCHOR_TOP")
+      GameTooltip:SetText(self.label:GetText() or "", 1, 1, 1, 1, true)
+      GameTooltip:Show()
+      self.cutTip = true
+    end
+  end)
+  b:SetScript("OnLeave", function(self)
+    self:SetBase(self.baseColor)
+    if self.cutTip and GameTooltip then GameTooltip:Hide() end
+    self.cutTip = nil
+  end)
   b:SetScript("OnClick", function(self, ...) if onClick then onClick(self, ...) end end)
   return b
 end
@@ -662,9 +707,20 @@ local function BuildCondRow(list, i)
   row.label = Label(row, "", "GameFontNormalSmall", COL.gold)
   row.label:SetPoint("LEFT", 8, 0)
   row.label:SetWidth(150)
-  row.label:SetHeight(28)
-  row.label:SetWordWrap(true)
-  if row.label.SetJustifyV then row.label:SetJustifyV("MIDDLE") end
+  row.label:SetWordWrap(false) -- long names end with "..." and show in full in a tooltip
+  row.labelHit = CreateFrame("Frame", nil, row)
+  row.labelHit:SetPoint("LEFT", 4, 0)
+  row.labelHit:SetSize(156, 26)
+  row.labelHit:EnableMouse(true)
+  row.labelHit:SetScript("OnEnter", function(self)
+    if not GameTooltip or not row.fullLabel then return end
+    if not IsCut(row.label) and not row.help then return end
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(row.fullLabel, 1, 0.82, 0.3, 1, true)
+    if row.help then GameTooltip:AddLine(row.help, 0.9, 0.9, 0.9, true) end
+    GameTooltip:Show()
+  end)
+  row.labelHit:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
 
   local function cond()
     local rule = CurrentRule()
@@ -758,8 +814,10 @@ local function BindCondRow(row, idx)
   if prev and prev.f == c.f then
     row.label:SetText("   " .. L["or"])
     SetColor(row.label, COL.muted)
+    row.fullLabel, row.help = nil, nil
   else
     row.label:SetText(d and d.label or (tostring(c.f) .. " (?)"))
+    row.fullLabel, row.help = row.label:GetText(), d and d.help
     if d then SetColor(row.label, COL.gold) else SetColor(row.label, COL.bad) end
   end
 
@@ -950,13 +1008,17 @@ local function BuildOptionsPage(page)
   profImport:SetPoint("TOPLEFT", 604, -16)
   AttachTip(profImport, L["Import"], L["Creates a new profile from a text made with Export. Your current profiles are not changed."])
 
-  local function addCheck(y, text, help, get, set)
+  -- Each option sits under the help line of the previous one, so bigger fonts push the rows down
+  -- instead of overlapping them.
+  local lastHelp
+  local function addCheck(_, text, help, get, set)
     local c = Check(page, text, 500, get, set)
-    c:SetPoint("TOPLEFT", 0, y)
+    if lastHelp then c:SetPoint("TOPLEFT", lastHelp, "BOTTOMLEFT", -26, -8) else c:SetPoint("TOPLEFT", 0, -70) end
     local h = Label(page, help, "GameFontHighlightSmall", COL.muted)
-    h:SetPoint("TOPLEFT", 26, y - 22)
+    h:SetPoint("TOPLEFT", c, "BOTTOMLEFT", 26, -1)
     h:SetWidth(800)
     h:SetWordWrap(false)
+    lastHelp = h
     optionWidgets[#optionWidgets + 1] = c
     return c
   end
@@ -983,6 +1045,7 @@ local function BuildOptionsPage(page)
     if s < 0.7 then s = 0.7 elseif s > 1.5 then s = 1.5 end
     ns.db.scale = s
     main:SetScale(s)
+    UI.RefreshEdges()
     scaleValue:SetText(string.format("%.1f", s))
   end
   local minus = Button(page, "-", 30, 24, function() applyScale(-0.1) end)
@@ -992,22 +1055,25 @@ local function BuildOptionsPage(page)
   optionWidgets.scaleValue = scaleValue
 
   local msgHeader = Label(page, L["Chat messages"], "GameFontNormal", COL.gold)
-  msgHeader:SetPoint("TOPLEFT", 0, -272)
+  msgHeader:SetPoint("TOPLEFT", lastHelp, "BOTTOMLEFT", -26, -18)
   local msgHelp = Label(page, L["%item% and %rule% are replaced by the item link and the rule name."], "GameFontHighlightSmall", COL.muted)
-  msgHelp:SetPoint("TOPLEFT", 200, -275)
+  msgHelp:SetPoint("LEFT", msgHeader, "LEFT", 200, -1)
   optionWidgets.msg = {}
   local keys = { "need", "de", "greed", "pass", "ignore" }
   for i, key in ipairs(keys) do
-    local y = -296 - (i - 1) * 30
+    local y = -8 - (i - 1) * 30
     local text = (key == "ignore") and L["Ignored"] or Engine.ActionLabel(key)
     local l = Label(page, text, "GameFontHighlight")
-    l:SetPoint("TOPLEFT", 0, y - 5)
+    l:SetPoint("TOPLEFT", msgHeader, "BOTTOMLEFT", 0, y - 5)
+    l:SetWidth(124)
+    l:SetWordWrap(false)
     local e = Edit(page, 650, 24, function(value) ns.profile.messages[key] = value end)
-    e:SetPoint("TOPLEFT", 130, y)
+    e:SetPoint("TOPLEFT", msgHeader, "BOTTOMLEFT", 130, y)
+    optionWidgets.lastMsg = e
     optionWidgets.msg[key] = e
   end
   local credit = Label(page, "PassLoot Forever v" .. ns.VERSION .. "  -  " .. L["by"] .. " |cffd4a85a" .. ns.AUTHOR .. "|r   |   PassLoot " .. L["by"] .. " nebula169", "GameFontHighlightSmall", COL.muted)
-  credit:SetPoint("TOPLEFT", 0, -512)
+  credit:SetPoint("BOTTOMLEFT", page, "BOTTOMLEFT", 0, 2)
   credit:SetWidth(850)
   credit:SetWordWrap(false)
 
@@ -1015,13 +1081,13 @@ local function BuildOptionsPage(page)
     ns.profile.messages = ns.DefaultMessages()
     UI.RefreshOptions()
   end)
-  resetMsg:SetPoint("TOPLEFT", 130, -464)
+  resetMsg:SetPoint("TOPLEFT", optionWidgets.lastMsg, "BOTTOMLEFT", 0, -16)
   local examples = Button(page, L["Add example rules"], 200, 26, function()
     for _, r in ipairs(ns.ExampleRules()) do table.insert(ns.profile.rules, r) end
     UI.Changed()
     ns.Print(L["Example rules added (disabled). Enable the ones you want in the Rules tab."])
   end)
-  examples:SetPoint("TOPLEFT", 310, -464)
+  examples:SetPoint("LEFT", resetMsg, "RIGHT", 10, 0)
 end
 
 function UI.RefreshOptions()
@@ -1112,7 +1178,7 @@ local function BuildTestPage(page)
       testList:SetCount(#UI.testLines)
     end)
   end
-  testBox = Edit(page, 640, 26, nil)
+  testBox = Edit(page, 500, 26, nil)
   testBox:SetPoint("TOPLEFT", 0, -20)
   testBox:SetScript("OnEnterPressed", function(self) self:ClearFocus(); run() end)
   -- Drag an item from the bags (or anywhere) and drop it on the box.
@@ -1130,8 +1196,27 @@ local function BuildTestPage(page)
   testBox:SetScript("OnMouseDown", function() dropFromCursor() end)
   UI.testBox = testBox
   UI.RunTest = run
-  local go = Button(page, L["Test"], 110, 26, run)
-  go:SetPoint("TOPLEFT", 650, -20)
+  local go = Button(page, L["Test"], 100, 26, run)
+  go:SetPoint("TOPLEFT", 510, -20)
+  -- Stat weights used for the score (per character). Test version: display only.
+  local presetBtn
+  local function presetText()
+    local p = ns.Stats and ns.Stats.CurrentPreset()
+    return p and (L["Score:"] .. " " .. ns.Stats.PresetLabel(p)) or ""
+  end
+  presetBtn = Button(page, "", 230, 26, function(self)
+    local entries = {}
+    for _, p in ipairs(ns.Stats.ClassPresets()) do entries[#entries + 1] = { value = p.id, label = ns.Stats.PresetLabel(p) } end
+    UI.ShowMenu(self, entries, function(id)
+      ns.Stats.SetPreset(id)
+      presetBtn:SetLabel(presetText())
+      if testBox:GetText() ~= "" then run() end
+    end, ns.Stats.CurrentPreset().id, 230)
+  end)
+  presetBtn:SetPoint("TOPLEFT", 620, -20)
+  AttachTip(presetBtn, L["Stat score"], L["Stat weights used to score items for this character, here and in the \"Stat score gain vs equipped\" condition."])
+  page:HookScript("OnShow", function() presetBtn:SetLabel(presetText()) end)
+  presetBtn:SetLabel(presetText())
   testList = List(page, 850, 22, 21, function(list, i)
     local row = CreateFrame("Frame", nil, list)
     row.text = Label(row, "", "GameFontHighlightSmall")
@@ -1172,6 +1257,8 @@ local function Build()
   main:SetMovable(true)
   main:EnableMouse(true)
   main:SetScale(ns.db.scale or 1)
+  UI.RefreshEdges()
+  main:HookScript("OnShow", UI.RefreshEdges)
   local w = ns.db.window
   if type(w) == "table" and w.point then
     main:SetPoint(w.point, UIParent, w.relPoint or w.point, w.x or 0, w.y or 0)
@@ -1330,3 +1417,7 @@ ns.RegisterCallback("DB_READY", function()
     end
   end
 end)
+
+-- Resolution or UI scale changed while playing: recompute the 1-pixel borders.
+ns.RegisterEvent("UI_SCALE_CHANGED", function() if UI.RefreshEdges then UI.RefreshEdges() end end)
+ns.RegisterEvent("DISPLAY_SIZE_CHANGED", function() if UI.RefreshEdges then UI.RefreshEdges() end end)

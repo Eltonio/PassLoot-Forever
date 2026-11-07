@@ -313,6 +313,13 @@ function Engine.DescribeResult(result)
   else
     add("|cffd4a85a" .. L["Result:"] .. "|r |c" .. Engine.ACTION_COLOR.ignored .. L["Ignored"] .. "|r (" .. d.rule.name .. ") - " .. L["no available choice"])
   end
+  if ns.Stats then
+    local ok, extra = pcall(ns.Stats.Describe, item)
+    if ok and #extra > 0 then
+      add(" ")
+      for _, s in ipairs(extra) do add(s) end
+    end
+  end
   return lines
 end
 
