@@ -51,6 +51,7 @@ Other clients use English.
 
 ## Changelog
 
+- **5.1.1**: first stable release, after a week of beta testing (same features as 5.1.0).
 - **5.1.0**: new condition **Stat score gain vs equipped**: compares an item with your gear stat by stat, with weights per class and spec (Score button in the Test tab, which also shows the score and its detail); `/plf diag` checks GetItemStats; layout fixes for larger fonts and some resolutions (option rows, cut labels shown in a tooltip, 1-pixel borders that could disappear).
 - **5.0.7**: Options tab: removed the profile help sentence.
 - **5.0.6**: profile **export / import** (Options tab): a text to copy and share, imported as a new profile; taller window (less cramped Options tab, one more row in lists); close buttons drawn exactly centred.

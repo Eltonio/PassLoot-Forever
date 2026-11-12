@@ -1,5 +1,9 @@
 # PassLoot Forever
 
+## 5.1.1
+
+- First stable release, after a week of beta testing. Same features as 5.1.0, no code changes.
+
 ## 5.1.0 (beta)
 
 - New condition **Stat score gain vs equipped**: compares a drop with the gear it would replace, stat by stat, with weights per class and spec. Pick your spec with the **Score** button of the Test tab.

@@ -51,6 +51,7 @@ Les autres clients utilisent l'anglais.
 
 ## Historique
 
+- **5.1.1** : première version stable, après une semaine de bêta (mêmes fonctionnalités que la 5.1.0).
 - **5.1.0** : nouvelle condition **Gain de score de stats vs équipé** : compare un objet à votre équipement stat par stat, avec des poids par classe et spécialité (bouton Score de l'onglet Tester, qui affiche aussi le score et son détail) ; `/plf diag` vérifie GetItemStats ; corrections d'affichage pour les grandes polices et certaines résolutions (lignes des options, textes coupés affichés en infobulle, bordures d'1 pixel qui pouvaient disparaître).
 - **5.0.7** : onglet Options : phrase d'aide des profils retirée.
 - **5.0.6** : **export / import de profils** (onglet Options) : un texte à copier et partager, importé comme nouveau profil ; fenêtre plus haute (onglet Options moins tassé, une ligne de plus dans les listes) ; croix de fermeture parfaitement centrées.
