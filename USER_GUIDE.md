@@ -51,6 +51,7 @@ Two ready-made rules are provided (disabled) in the **Rules** tab, and you can b
 - **Pass on recipes I know or that are not for my professions**: two **Recipe status** conditions, *Already learned* **or** *Not my profession* (one is enough).
 
 Recipe status only applies to recipes: there is no need to add "Item type = Recipe" (you can if you prefer).
+In "Item type", **Armor - Miscellaneous** covers necklaces, cloaks, rings and trinkets (cloaks are not in "Cloth").
 The addon reads what the game displays on the item ("Already known") and compares it with your professions. It does not look at your profession skill:
 a recipe for your profession that is too hard for you right now still counts as "not learned yet, my profession".
 Recipe books without a profession ("Book" type) count as being for your profession.
@@ -84,7 +85,8 @@ Same thing in chat: `/plf test <link>` (open the window with `/plf`, or via **Op
 ## 5. The other tabs
 
 - **Options**: profiles (one per character, with New / Duplicate / Delete / Export / Import), quiet mode (no chat message),
-  window scale, minimap button (show / hide), message texts. The two "Auto-confirm" boxes (bind-on-pickup and disenchant)
+  window scale, minimap button (show / hide), message texts, and **Show messages in**: the chat tab where PassLoot
+  messages appear (saved per character). The two "Auto-confirm" boxes (bind-on-pickup and disenchant)
   are **unticked by default**: tick them only if you are sure of your rules.
 - **Sharing a profile** (Options tab): **Export** shows a text that is already selected; press **Ctrl+C**
   and send it to a friend (Discord, text file...). To get it back: **Import**, paste the text with **Ctrl+V**,
@@ -104,6 +106,7 @@ Same thing in chat: `/plf test <link>` (open the window with `/plf`, or via **Op
 | `/plf test <link or ID>` | see what would be rolled |
 | `/plf profile <name>` | switch profile |
 | `/plf diag` | check the functions available on your client |
+| `/plf tip <item>` | show the item tooltip as the addon reads it (useful to report a problem) |
 | `/plf debug` | show debug messages |
 
 If in doubt in the middle of a dungeon: **/plf off** and you are back in control immediately (or untick "Addon enabled" in the window, opened with **Options > AddOns tab > PassLoot Forever** or the minimap button).
@@ -122,6 +125,8 @@ If in doubt in the middle of a dungeon: **/plf off** and you are back in control
   restrictions that the game writes in red on the item ("Classes: ...").
 - When a piece of information cannot be read (item not loaded yet, for example), the conditions concerned **do not match**:
   the addon never guesses, and you keep control of the roll.
+- Every automatic roll is **checked**: the PassLoot message only appears once the game has confirmed the roll. If the game
+  does not confirm it, the addon tries once more, then shows a red warning: check the roll window then.
 - The minimap button can be dragged around the minimap; hide it in the **Options** tab or with `/plf minimap`.
 - Old rules from the original PassLoot addon are not imported.
 

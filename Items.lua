@@ -151,12 +151,13 @@ end
 local scanTip
 
 -- Returns a list of { left, right, leftRed, rightRed } for the item tooltip (line 1 = item name), or nil.
-function Items.TooltipLines(linkOrId)
+-- source: "info" (C_TooltipInfo), "frame" (hidden tooltip) or nil (the first one that works).
+function Items.TooltipLines(linkOrId, source)
   local link = linkOrId
   if type(link) == "number" then link = "item:" .. link end
   if type(link) ~= "string" or link == "" then return nil end
 
-  if C_TooltipInfo and type(C_TooltipInfo.GetHyperlink) == "function" then
+  if source ~= "frame" and C_TooltipInfo and type(C_TooltipInfo.GetHyperlink) == "function" then
     local ok, data = pcall(C_TooltipInfo.GetHyperlink, link)
     if ok and type(data) == "table" then
       if TooltipUtil and type(TooltipUtil.SurfaceArgs) == "function" then pcall(TooltipUtil.SurfaceArgs, data) end
@@ -179,6 +180,7 @@ function Items.TooltipLines(linkOrId)
     end
   end
 
+  if source == "info" then return nil end
   -- Fallback: hidden tooltip frame.
   if not CreateFrame then return nil end
   local ok, result = pcall(function()
@@ -210,22 +212,86 @@ function Items.TooltipLines(linkOrId)
   return nil
 end
 
--- true / false, or nil when the tooltip could not be read.
-function Items.IsKnown(item)
-  local lines = Items.TooltipLines(item.link or item.id)
+-- Tooltip text without colour codes and surrounding spaces.
+-- Tooltip text without colour codes, with French non-breaking spaces turned into plain spaces
+-- ("Utiliser\194\160:"), and without spaces around.
+local function Plain(text)
+  if type(text) ~= "string" then return nil end
+  text = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+  text = text:gsub("\194\160", " "):gsub("\226\128\175", " "):gsub("\226\128\137", " ")
+  text = text:gsub("%s+", " ")
+  return (text:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+Items.Plain = Plain
+
+-- true / false, or nil when the tooltip could not be read (or looks incomplete).
+-- "false" is only answered for a tooltip that is complete: a recipe tooltip always has its "Use:" line,
+-- so without it the tooltip was not fully loaded yet and the answer is "unknown" rather than "not learned".
+local function KnownFromLines(lines)
   if not lines or #lines < 2 then return nil end
-  local known = _G.ITEM_SPELL_KNOWN
-  if type(known) ~= "string" or known == "" then known = "Already known" end
+  local known = Plain(_G.ITEM_SPELL_KNOWN)
+  if not known or known == "" then known = "Already known" end
+  local use = Plain(_G.ITEM_SPELL_TRIGGER_ONUSE)
+  if use == "" then use = nil end
+  -- A recipe tooltip also contains the tooltip of the item it makes, starting with a line that begins with
+  -- a newline. Two layouts exist:
+  --   recipe lines ("Use: Teaches...", "Already known") first, then the made item  -> stop at the made item,
+  --     so that an "Already known" of the made item (a mount, a pet...) is not taken for the recipe;
+  --   made item first, then the recipe lines (WoW Forever)                         -> keep reading after it.
+  local sawUse, useBeforeItem, inItem = false, false, false
   for i = 2, #lines do
-    local text = lines[i].left
-    if text then
-      -- a line starting with a newline begins the tooltip of the item the recipe makes: stop there,
-      -- otherwise "Already known" of that item (a mount, a pet...) would count for the recipe itself
-      if text:sub(1, 1) == "\n" then break end
-      if text == known then return true end
+    local raw = lines[i].left
+    if raw then
+      if raw:sub(1, 1) == "\n" then
+        if useBeforeItem then break end
+        inItem = true
+      end
+      local text = Plain(raw)
+      if text == known or text:sub(1, #known) == known then return true end
+      if use and text:sub(1, #use) == use then
+        sawUse = true
+        if not inItem then useBeforeItem = true end
+      end
+    end
+    local right = Plain(lines[i].right)
+    if right and right ~= "" and (right == known or right:sub(1, #known) == known) then return true end
+  end
+  if use and not sawUse then return nil end
+  return false
+end
+
+-- Both ways of reading the tooltip are tried: the first clear answer (true / false) wins.
+function Items.IsKnown(item)
+  local ref = item.link or item.id
+  local answer = KnownFromLines(Items.TooltipLines(ref, "info"))
+  if answer == nil then answer = KnownFromLines(Items.TooltipLines(ref, "frame")) end
+  return answer
+end
+
+-- Diagnostic: raw tooltip lines as the addon reads them, special characters made visible.
+local function Visible(s)
+  if s == nil then return "-" end
+  if ns.IsSecret(s) then return "<secret>" end
+  s = tostring(s)
+  s = s:gsub("|", "||"):gsub("\n", "\\n"):gsub("\194\160", "{nbsp}"):gsub("\226\128\175", "{nnbsp}")
+  return s
+end
+
+function Items.DumpTooltip(ref)
+  local out = {}
+  out[#out + 1] = "ITEM_SPELL_KNOWN = " .. Visible(_G.ITEM_SPELL_KNOWN) .. "   ITEM_SPELL_TRIGGER_ONUSE = " .. Visible(_G.ITEM_SPELL_TRIGGER_ONUSE)
+  for _, source in ipairs({ "info", "frame" }) do
+    local lines = Items.TooltipLines(ref, source)
+    if not lines then
+      out[#out + 1] = source .. ": (nothing)"
+    else
+      out[#out + 1] = source .. ": " .. #lines .. " lines, known = " .. tostring(KnownFromLines(lines))
+      for i, l in ipairs(lines) do
+        out[#out + 1] = string.format("  %d. %s%s%s", i, Visible(l.left), l.right and ("  ||  " .. Visible(l.right)) or "", l.leftRed and "  (red)" or "")
+      end
     end
   end
-  return false
+  return out
 end
 
 -- true when the item carries a red "Classes: ..." line, i.e. it is reserved for other classes.

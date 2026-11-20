@@ -254,6 +254,18 @@ if locale == "frFR" then
     ["Stat score gain vs equipped"] = "Gain de score de stats vs équipé",
     ["Stat score of the drop compared with the gear it would replace, in percent. Uses the stat weights chosen with the Score button of the Test tab. Empty slot counts as an upgrade. Gear only."] = "Score de stats de l'objet comparé à l'équipement qu'il remplacerait, en pourcentage. Utilise les poids choisis avec le bouton Score de l'onglet Tester. Un emplacement vide compte comme une amélioration. Équipement uniquement.",
     ["Stat weights used to score items for this character, here and in the \"Stat score gain vs equipped\" condition."] = "Poids des stats utilisés pour noter les objets de ce personnage, ici et dans la condition « Gain de score de stats vs équipé ».",
+    ["Main chat window"] = "Fenêtre de chat principale",
+    ["Show messages in:"] = "Afficher dans :",
+    ["PassLoot messages will appear in this window."] = "Les messages de PassLoot s'afficheront dans cette fenêtre.",
+    ["Chat window where PassLoot messages appear (automatic rolls and commands). Saved per character. If the window is closed, the main chat window is used."] = "Fenêtre de chat où s'affichent les messages de PassLoot (jets automatiques et commandes). Retenu par personnage. Si la fenêtre est fermée, la fenêtre de chat principale est utilisée.",
+    ["(necklaces, cloaks, rings, trinkets...)"] = "(colliers, capes, anneaux, bijoux...)",
+    ["|cffff7a5cThe game did not confirm the automatic roll (%s) on %s: check the roll window.|r (%s)"] = "|cffff7a5cLe jeu n'a pas confirmé le jet automatique (%s) sur %s : vérifiez la fenêtre de jet.|r (%s)",
+    ["Recipe"] = "Recette",
+    ["already learned:"] = "déjà apprise :",
+    ["for my profession:"] = "de mon métier :",
+    ["yes"] = "oui",
+    ["no"] = "non",
+    ["unknown"] = "inconnu",
   }
 end
 

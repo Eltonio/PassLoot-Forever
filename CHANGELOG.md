@@ -1,5 +1,14 @@
 # PassLoot Forever
 
+## 5.1.2
+
+- **Choose the chat window** where PassLoot messages appear (Options tab, "Show messages in"), saved per character, like in the original PassLoot. Falls back to the main chat window if that window is closed.
+- **Rolls are checked**: the addon waits for the game to confirm each automatic roll before announcing it, tries once more if needed, and warns you in red if the game did not take it (useful with interface addons such as RealUI). A short delay before deciding gives the game time to load the item.
+- **Known recipes are detected reliably** on WoW Forever, whose recipe tooltips show the crafted item first: no more Need on a recipe you already know. If the tooltip cannot be read, recipe conditions do not match (you keep the roll).
+- Item type: **Armor - Miscellaneous** now also covers cloaks (no longer in Cloth), along with necklaces, rings and trinkets; the list says so.
+- Test tab: a "Recipe" line shows whether the recipe is already learned and for your profession.
+- New command `/plf tip <item>`: shows the item tooltip as the addon reads it, for bug reports.
+
 ## 5.1.1
 
 - First stable release, after a week of beta testing. Same features as 5.1.0, no code changes.

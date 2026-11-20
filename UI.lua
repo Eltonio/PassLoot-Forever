@@ -1088,6 +1088,27 @@ local function BuildOptionsPage(page)
     ns.Print(L["Example rules added (disabled). Enable the ones you want in the Rules tab."])
   end)
   examples:SetPoint("LEFT", resetMsg, "RIGHT", 10, 0)
+
+  -- Chat window where the addon messages appear (per character), like in the original PassLoot.
+  local outLabel = Label(page, L["Show messages in:"], "GameFontHighlight")
+  outLabel:SetPoint("LEFT", examples, "RIGHT", 24, 0)
+  local outBtn
+  local function outText()
+    local idx = ns.OutputIndex()
+    for _, w in ipairs(ns.ChatWindows()) do if w.value == idx then return w.label end end
+    return L["Main chat window"]
+  end
+  outBtn = Button(page, "", 150, 26, function(self)
+    UI.ShowMenu(self, ns.ChatWindows(), function(i)
+      ns.SetOutputIndex(i)
+      outBtn:SetLabel(outText())
+      ns.Print(L["PassLoot messages will appear in this window."])
+    end, ns.OutputIndex(), 150)
+  end)
+  outBtn:SetPoint("LEFT", outLabel, "RIGHT", 8, 0)
+  AttachTip(outBtn, L["Show messages in:"], L["Chat window where PassLoot messages appear (automatic rolls and commands). Saved per character. If the window is closed, the main chat window is used."])
+  page:HookScript("OnShow", function() outBtn:SetLabel(outText()) end)
+  outBtn:SetLabel(outText())
 end
 
 function UI.RefreshOptions()

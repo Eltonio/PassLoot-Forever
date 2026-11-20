@@ -51,6 +51,7 @@ Other clients use English.
 
 ## Changelog
 
+- **5.1.2**: choice of the chat window for messages; automatic rolls checked (confirmation, retry, warning); reliable detection of known recipes on WoW Forever; cloaks counted in Armor - Miscellaneous; recipe line in the Test tab; `/plf tip` command.
 - **5.1.1**: first stable release, after a week of beta testing (same features as 5.1.0).
 - **5.1.0**: new condition **Stat score gain vs equipped**: compares an item with your gear stat by stat, with weights per class and spec (Score button in the Test tab, which also shows the score and its detail); `/plf diag` checks GetItemStats; layout fixes for larger fonts and some resolutions (option rows, cut labels shown in a tooltip, 1-pixel borders that could disappear).
 - **5.0.7**: Options tab: removed the profile help sentence.

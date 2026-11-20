@@ -51,6 +51,7 @@ Deux règles toutes prêtes sont fournies (désactivées) dans l'onglet **Règle
 - **Passer sur les recettes déjà apprises ou d'un autre métier** : deux conditions **Statut de la recette**, *Déjà apprise* **ou** *Pas de mon métier* (une seule suffit).
 
 Le statut de la recette ne s'applique qu'aux recettes : inutile d'ajouter « Type d'objet = Recette » (vous pouvez le faire si vous préférez).
+Dans « Type d'objet », **Armure - Divers** regroupe les colliers, capes, anneaux et bijoux (les capes ne sont pas dans « Tissu »).
 L'addon lit ce que le jeu affiche sur l'objet (« Déjà connu ») et compare avec vos métiers. Il ne regarde pas votre niveau de métier :
 une recette de votre métier trop difficile pour l'instant est quand même « pas encore apprise, de mon métier ».
 Les livres de recette sans métier (type « Livre ») comptent comme étant de votre métier.
@@ -84,7 +85,8 @@ Même chose en chat : `/plf test <lien>` (la fenêtre s'ouvre avec `/plf`, ou vi
 ## 5. Les autres onglets
 
 - **Options** : profils (un par personnage, avec Nouveau / Dupliquer / Supprimer / Exporter / Importer), mode silencieux (pas de message dans le chat),
-  taille de la fenêtre, bouton de la minicarte (afficher / masquer), texte des messages. Les deux cases « Confirmer automatiquement » (liaison et désenchantement)
+  taille de la fenêtre, bouton de la minicarte (afficher / masquer), texte des messages, et **Afficher dans** : l'onglet de chat
+  où s'affichent les messages de PassLoot (retenu par personnage). Les deux cases « Confirmer automatiquement » (liaison et désenchantement)
   sont **décochées par défaut** : cochez-les seulement si vous êtes sûr de vos règles.
 - **Partager un profil** (onglet Options) : **Exporter** affiche un texte déjà sélectionné ; faites **Ctrl+C**
   et envoyez-le à un ami (Discord, fichier texte...). Pour le récupérer : **Importer**, collez le texte avec **Ctrl+V**,
@@ -104,6 +106,7 @@ Même chose en chat : `/plf test <lien>` (la fenêtre s'ouvre avec `/plf`, ou vi
 | `/plf test <lien ou numéro>` | voir ce qui serait joué |
 | `/plf profile <nom>` | changer de profil |
 | `/plf diag` | vérifier les fonctions disponibles sur votre client |
+| `/plf tip <objet>` | afficher l'infobulle de l'objet telle que l'addon la lit (utile pour signaler un problème) |
 | `/plf debug` | afficher des messages de débogage |
 
 En cas de doute en plein donjon : **/plf off** et vous reprenez la main immédiatement (ou décochez « Addon activé » dans la fenêtre, ouverte par **Options > onglet AddOns > PassLoot Forever** ou le bouton de la minicarte).
@@ -122,6 +125,8 @@ En cas de doute en plein donjon : **/plf off** et vous reprenez la main immédia
   restrictions de classe que le jeu écrit en rouge sur l'objet (« Classes : ... »).
 - Quand une information est illisible (objet pas encore chargé, par exemple), les conditions concernées **ne correspondent pas** :
   l'addon ne devine jamais, et vous gardez la main sur le jet.
+- Chaque jet automatique est **vérifié** : le message de PassLoot n'apparaît qu'une fois le jet confirmé par le jeu. Si le jeu ne
+  le confirme pas, l'addon réessaie une fois, puis affiche un avertissement en rouge : vérifiez alors la fenêtre de jet.
 - Le bouton de la minicarte se déplace en le faisant glisser ; il se masque dans l'onglet **Options** ou avec `/plf minimap`.
 - Les anciennes règles de l'addon PassLoot d'origine ne sont pas reprises.
 

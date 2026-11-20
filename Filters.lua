@@ -141,6 +141,10 @@ local function IsObsolete(name)
   return type(name) ~= "string" or name == "" or name:upper():find("OBSOLETE", 1, true) ~= nil
 end
 
+-- Cloaks are "Cloth" armor for the game. Here they are counted in "Miscellaneous", with the jewelry
+-- (necklaces, rings, trinkets), and the "Miscellaneous" entry says so in the list.
+local CLOAK = "INVTYPE_CLOAK"
+
 local classChoicesCache
 local function ClassChoices()
   if classChoicesCache and #classChoicesCache > 0 then return classChoicesCache end
@@ -154,7 +158,9 @@ local function ClassChoices()
         for s = 0, 25 do
           local sname = getSub(c, s)
           if not IsObsolete(sname) then
-            out[#out + 1] = { value = c .. ":" .. s, label = "   " .. cname .. " - " .. sname }
+            local label = "   " .. cname .. " - " .. sname
+            if c == 4 and s == 0 then label = label .. " " .. L["(necklaces, cloaks, rings, trinkets...)"] end
+            out[#out + 1] = { value = c .. ":" .. s, label = label }
           end
         end
       end
@@ -210,6 +216,7 @@ Add{ key = "itemClass", label = L["Item type"], help = L["Item class and subclas
     local c, s = tostring(v):match("^(%d+):([%d%*]+)$")
     if not c or item.classID ~= tonumber(c) then return false end
     if s == "*" then return true end
+    if c == "4" and item.equipLoc == CLOAK then return s == "0" end -- cloaks: "Miscellaneous", not "Cloth"
     return item.subClassID == tonumber(s)
   end }
 

@@ -4,7 +4,7 @@ local addonName, ns = ...
 local L = ns.L
 
 ns.name = addonName
-ns.VERSION = "5.1.1"
+ns.VERSION = "5.1.2"
 ns.AUTHOR = "Doel"
 
 ------------------------------------------------------------------------
@@ -34,10 +34,51 @@ function ns.CopyTable(t)
   return out
 end
 
+-- Chat window used for the addon messages, chosen per character (1 = main chat window).
+-- A window that was closed or deleted falls back to the main one.
+function ns.ChatWindowUsable(i)
+  if i == 1 then return true end
+  if type(GetChatWindowInfo) ~= "function" then return false end
+  local ok, name, _, _, _, _, _, shown, _, docked = pcall(GetChatWindowInfo, i)
+  if not ok or type(name) ~= "string" or name == "" then return false end
+  local f = _G["ChatFrame" .. i]
+  return (shown or docked) and f and f.AddMessage and true or false
+end
+
+-- { { value = index, label = window name } } for the Options menu. Window 2 (combat log) is left out.
+function ns.ChatWindows()
+  local list = {}
+  local n = tonumber(NUM_CHAT_WINDOWS) or 10
+  for i = 1, n do
+    if i ~= 2 and ns.ChatWindowUsable(i) then
+      local name = type(GetChatWindowInfo) == "function" and select(2, pcall(GetChatWindowInfo, i)) or nil
+      if type(name) ~= "string" or name == "" then name = (i == 1) and ns.L["Main chat window"] or ("#" .. i) end
+      list[#list + 1] = { value = i, label = name }
+    end
+  end
+  if #list == 0 then list[1] = { value = 1, label = ns.L["Main chat window"] } end
+  return list
+end
+
+function ns.OutputIndex()
+  local idx = ns.db and type(ns.db.chatFrame) == "table" and ns.db.chatFrame[ns.CharKey()]
+  idx = tonumber(idx)
+  if idx and idx ~= 1 and ns.ChatWindowUsable(idx) then return idx end
+  return 1
+end
+
+function ns.SetOutputIndex(i)
+  if type(ns.db.chatFrame) ~= "table" then ns.db.chatFrame = {} end
+  ns.db.chatFrame[ns.CharKey()] = (tonumber(i) and tonumber(i) ~= 1) and tonumber(i) or nil
+end
+
 function ns.Print(msg)
   local text = "|cffd4a85aPassLoot|r: " .. tostring(msg)
-  if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
-    DEFAULT_CHAT_FRAME:AddMessage(text)
+  local frame = DEFAULT_CHAT_FRAME
+  local idx = ns.OutputIndex and ns.OutputIndex() or 1
+  if idx ~= 1 and _G["ChatFrame" .. idx] then frame = _G["ChatFrame" .. idx] end
+  if frame and frame.AddMessage then
+    frame:AddMessage(text)
   else
     print(text)
   end
@@ -344,6 +385,7 @@ local function InitDB()
   db.minimap.angle = tonumber(db.minimap.angle) or 215
   if type(db.profiles) ~= "table" then db.profiles = {} end
   if type(db.charProfile) ~= "table" then db.charProfile = {} end
+  if type(db.chatFrame) ~= "table" then db.chatFrame = {} end
   if not next(db.profiles) then db.profiles.Default = ns.NewProfileTable(true) end
   local name = db.charProfile[ns.CharKey()]
   if not name or not db.profiles[name] then
@@ -411,6 +453,14 @@ SlashCmdList["PASSLOOTFOREVER"] = function(msg)
       ns.Minimap.SetShown(show)
       ns.Print(show and L["Minimap button shown."] or L["Minimap button hidden."])
       if ns.UI and ns.UI.RefreshOptions then ns.UI.RefreshOptions() end
+    end
+  elseif cmd == "tip" then
+    -- /plf tip <item>: shows the tooltip lines exactly as the addon reads them (for bug reports)
+    if rest == "" then
+      ns.Print("/plf tip <" .. L["item link, ID or name"] .. ">")
+    else
+      local ref = rest:match("(|c[^|]*|Hitem:.-|h.-|h|r)") or rest:match("(item:[%d:%-]+)") or tonumber(rest) or rest
+      for _, line in ipairs(ns.Items.DumpTooltip(ref)) do ns.Print(line) end
     end
   elseif cmd == "debug" then
     ns.db.debug = not ns.db.debug
