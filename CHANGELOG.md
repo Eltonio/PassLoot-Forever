@@ -1,5 +1,10 @@
 # PassLoot Forever
 
+## 5.1.3
+
+- **Class books fixed**: a book, codex or tome for another class (such as "Book: Gift of the Wild II" for a druid) no longer counts as "Not learned yet, my profession", so a rule can no longer roll Need on it. The addon now reads the "Classes:" line of the book: another class means "Not my profession", and if the line cannot be read, recipe conditions do not match (you keep the roll).
+- The "Classes:" line is read more reliably on French clients (non-breaking spaces), which also helps the "Usable by my class" condition.
+
 ## 5.1.2
 
 - **Choose the chat window** where PassLoot messages appear (Options tab, "Show messages in"), saved per character, like in the original PassLoot. Falls back to the main chat window if that window is closed.

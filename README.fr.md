@@ -51,6 +51,7 @@ Les autres clients utilisent l'anglais.
 
 ## Historique
 
+- **5.1.3** : les livres de classe (livre, codex, tome) d'une autre classe ne comptent plus comme « Pas encore apprise, de mon métier », une règle ne peut donc plus y jouer Besoin ; la ligne « Classes : » est lue de façon plus fiable sur les clients français.
 - **5.1.2** : choix de la fenêtre de chat des messages ; jets automatiques vérifiés (confirmation, nouvel essai, avertissement) ; détection fiable des recettes connues sur WoW Forever ; capes comptées dans Armure - Divers ; ligne Recette dans l'onglet Tester ; commande `/plf tip`.
 - **5.1.1** : première version stable, après une semaine de bêta (mêmes fonctionnalités que la 5.1.0).
 - **5.1.0** : nouvelle condition **Gain de score de stats vs équipé** : compare un objet à votre équipement stat par stat, avec des poids par classe et spécialité (bouton Score de l'onglet Tester, qui affiche aussi le score et son détail) ; `/plf diag` vérifie GetItemStats ; corrections d'affichage pour les grandes polices et certaines résolutions (lignes des options, textes coupés affichés en infobulle, bordures d'1 pixel qui pouvaient disparaître).
@@ -68,7 +69,7 @@ Les autres clients utilisent l'anglais.
 - Testé sur le client WoW Forever par l'auteur. Le moteur et l'interface ont aussi été exécutés contre une API WoW simulée (191 vérifications). `/plf diag` indique les fonctions du jeu disponibles sur votre client.
 - Règles de butin de Forever (éligibilité du Besoin, délais) : non documentées publiquement ; l'addon lit simplement
   ce que le jeu propose pour chaque jet.
-- Le statut de la recette lit le texte de l'objet (« Déjà connu ») et compare avec vos métiers ; il ne tient pas compte du niveau de métier requis.
+- Le statut de la recette lit le texte de l'objet (« Déjà connu ») et compare avec vos métiers (livres de classe : avec votre classe) ; il ne tient pas compte du niveau de métier requis.
 - Valeurs secrètes : toute valeur secrète est traitée comme absente (jamais comparée, jamais affichée).
 - Les anciennes règles de PassLoot (`PassLootDB`) ne sont **pas** importées.
 - Non repris de l'original : filtres Spécialisation, Nom du joueur, Guilde, Objet déjà appris (général), Unique, Après victoire,

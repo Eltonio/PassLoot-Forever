@@ -238,14 +238,15 @@ Add{ key = "usable", label = L["Usable by my class"],
   eval = function(item, ctx, v) return Filters.UsableStatus(item, ctx) == v end }
 
 -- Recipes: item class 9. known = learned already (tooltip), mine = belongs to one of the player's professions.
--- "Book" recipes (subclass 0) have no profession and count as "mine". nil = could not be determined, in which
--- case no recipe condition matches (a rule never fires on a guess).
+-- "Book" recipes (subclass 0: class books such as "Book: Gift of the Wild II") have no profession: they are
+-- "mine" only when my class can learn them (no "Classes:" line, or my class in it; a red line = other classes).
+-- nil = could not be determined, in which case no recipe condition matches (a rule never fires on a guess).
 function Filters.RecipeFacts(item)
   if item.classID ~= 9 then return nil end
   local facts = { known = Items.IsKnown(item) }
   local sub = item.subClassID
   if sub == 0 then
-    facts.mine = true
+    facts.mine = Items.BookForMyClass(item)
   elseif sub ~= nil and API.GetItemSubClassInfo then
     local name = API.GetItemSubClassInfo(9, sub)
     local profs = Items.MyProfessions()
@@ -263,7 +264,7 @@ local function RecipeFactsCached(item, ctx)
 end
 
 Add{ key = "recipe", label = L["Recipe status"],
-  help = L["Recipes only: not learned yet and for one of your professions, already learned, or for a profession you do not have."],
+  help = L["Recipes only: not learned yet and for one of your professions, already learned, or for a profession you do not have. Class books (Book, Codex, Tome...) count as yours only if your class can learn them."],
   default = "learnable",
   choices = Static({
     { value = "learnable", label = L["Not learned yet, my profession"] },

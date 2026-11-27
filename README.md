@@ -51,6 +51,7 @@ Other clients use English.
 
 ## Changelog
 
+- **5.1.3**: class books (book, codex, tome) for another class no longer count as "Not learned yet, my profession", so a rule can no longer roll Need on them; the "Classes:" line is read more reliably on French clients.
 - **5.1.2**: choice of the chat window for messages; automatic rolls checked (confirmation, retry, warning); reliable detection of known recipes on WoW Forever; cloaks counted in Armor - Miscellaneous; recipe line in the Test tab; `/plf tip` command.
 - **5.1.1**: first stable release, after a week of beta testing (same features as 5.1.0).
 - **5.1.0**: new condition **Stat score gain vs equipped**: compares an item with your gear stat by stat, with weights per class and spec (Score button in the Test tab, which also shows the score and its detail); `/plf diag` checks GetItemStats; layout fixes for larger fonts and some resolutions (option rows, cut labels shown in a tooltip, 1-pixel borders that could disappear).
@@ -67,7 +68,7 @@ Other clients use English.
 
 - Tested on the WoW Forever client by the author. The engine and the interface were also run against a simulated WoW API (191 checks). `/plf diag` lists the game functions available on your client.
 - Forever loot rules (Need eligibility, timers) are not publicly documented; the addon simply reads what the game offers for each roll.
-- Recipe status reads the item text ("Already known") and compares it with your professions; it does not take the required profession skill level into account.
+- Recipe status reads the item text ("Already known") and compares it with your professions (class books: with your class); it does not take the required profession skill level into account.
 - Secret values: any secret value is treated as missing (never compared, never displayed).
 - Old PassLoot rules (`PassLootDB`) are **not** imported.
 - Not carried over from the original: Specialization, Player name, Guild, Learned item (general), Unique and Loot won filters,

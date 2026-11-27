@@ -179,7 +179,7 @@ if locale == "frFR" then
     ["Automatic Need / Greed / Disenchant / Pass rules for group loot."] = "Règles automatiques Besoin / Cupidité / Désenchantement / Passer pour le butin de groupe.",
     ["Open PassLoot Forever"] = "Ouvrir PassLoot Forever",
     ["Recipe status"] = "Statut de la recette",
-    ["Recipes only: not learned yet and for one of your professions, already learned, or for a profession you do not have."] = "Recettes uniquement : pas encore apprise et d'un de vos métiers, déjà apprise, ou d'un métier que vous n'avez pas.",
+    ["Recipes only: not learned yet and for one of your professions, already learned, or for a profession you do not have. Class books (Book, Codex, Tome...) count as yours only if your class can learn them."] = "Recettes uniquement : pas encore apprise et d'un de vos métiers, déjà apprise, ou d'un métier que vous n'avez pas. Les livres de classe (Livre, Codex, Tome...) ne comptent comme les vôtres que si votre classe peut les apprendre.",
     ["Not learned yet, my profession"] = "Pas encore apprise, de mon métier",
     ["Already learned"] = "Déjà apprise",
     ["Not my profession"] = "Pas de mon métier",

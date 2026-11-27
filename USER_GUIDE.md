@@ -54,7 +54,7 @@ Recipe status only applies to recipes: there is no need to add "Item type = Reci
 In "Item type", **Armor - Miscellaneous** covers necklaces, cloaks, rings and trinkets (cloaks are not in "Cloth").
 The addon reads what the game displays on the item ("Already known") and compares it with your professions. It does not look at your profession skill:
 a recipe for your profession that is too hard for you right now still counts as "not learned yet, my profession".
-Recipe books without a profession ("Book" type) count as being for your profession.
+Class books ("Book" type: book, codex, tome...) count as being for your profession only if your class can learn them: the addon reads their "Classes:" line, and a book for another class counts as "not my profession".
 
 ### The stat score: "is it better than my gear?"
 

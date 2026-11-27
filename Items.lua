@@ -217,7 +217,7 @@ end
 -- ("Utiliser\194\160:"), and without spaces around.
 local function Plain(text)
   if type(text) ~= "string" then return nil end
-  text = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+  text = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|cn[^:|]*:", ""):gsub("|r", "")
   text = text:gsub("\194\160", " "):gsub("\226\128\175", " "):gsub("\226\128\137", " ")
   text = text:gsub("%s+", " ")
   return (text:gsub("^%s+", ""):gsub("%s+$", ""))
@@ -294,24 +294,80 @@ function Items.DumpTooltip(ref)
   return out
 end
 
+-- "Classes:" prefix of the game ("Classes :" in French), compared without colour codes or special spaces.
+local function ClassPrefix()
+  local fmt = _G.ITEM_CLASSES_ALLOWED
+  if type(fmt) ~= "string" or fmt == "" then fmt = "Classes: %s" end
+  local prefix = Plain(fmt:match("^(.-)%%s"))
+  if not prefix or prefix == "" then return nil end
+  return prefix
+end
+
+-- The "Classes: ..." line of the item.
+-- nil when the tooltip could not be read; { found = false } when the item has no such line;
+-- { found = true, red = <game says not my class>, list = "Druid, Shaman" } otherwise.
+function Items.ClassRestriction(item)
+  local prefix = ClassPrefix()
+  if not prefix then return nil end
+  local lines = Items.TooltipLines(item.link or item.id)
+  if not lines or #lines < 2 then return nil end
+  for i = 2, #lines do
+    local l = lines[i]
+    local text = Plain(l.left)
+    if text and text:sub(1, #prefix) == prefix then
+      return { found = true, red = l.leftRed == true, list = Plain(text:sub(#prefix + 1)) or "" }
+    end
+  end
+  return { found = false }
+end
+
 -- true when the item carries a red "Classes: ..." line, i.e. it is reserved for other classes.
 function Items.ClassLockedOut(item, ctx)
   if ctx and ctx.classLock ~= nil then return ctx.classLock end
-  local locked = false
-  local fmt = _G.ITEM_CLASSES_ALLOWED
-  if type(fmt) ~= "string" or fmt == "" then fmt = "Classes: %s" end
-  local prefix = fmt:match("^(.-)%%s")
-  if prefix and prefix ~= "" then
-    local lines = Items.TooltipLines(item.link or item.id)
-    if lines then
-      for i = 2, #lines do
-        local l = lines[i]
-        if l.left and l.leftRed and l.left:sub(1, #prefix) == prefix then locked = true; break end
+  local r = Items.ClassRestriction(item)
+  local locked = (r and r.found and r.red) and true or false
+  if ctx then ctx.classLock = locked end
+  return locked
+end
+
+-- Names of the player's class as the game may write them (male and female forms), lower-cased, or nil.
+function Items.MyClassNames()
+  local set, any = {}, false
+  local function add(name)
+    name = Plain(Str(name))
+    if name and name ~= "" then set[name:lower()] = true; any = true end
+  end
+  if UnitClass then
+    local ok, loc, token = pcall(UnitClass, "player")
+    if ok then
+      add(loc)
+      token = Str(token)
+      if token then
+        if type(LOCALIZED_CLASS_NAMES_MALE) == "table" then add(LOCALIZED_CLASS_NAMES_MALE[token]) end
+        if type(LOCALIZED_CLASS_NAMES_FEMALE) == "table" then add(LOCALIZED_CLASS_NAMES_FEMALE[token]) end
       end
     end
   end
-  if ctx then ctx.classLock = locked end
-  return locked
+  if not any then return nil end
+  return set
+end
+
+-- Class books ("Book: ...", "Codex: ...", "Tome: ..."): are they for my class?
+-- true  = no "Classes:" line (any class can learn it) or my class is in the list;
+-- false = the game shows the line in red (other classes only);
+-- nil   = tooltip unreadable, or the colour and the class names disagree: no recipe condition matches.
+function Items.BookForMyClass(item)
+  local r = Items.ClassRestriction(item)
+  if not r then return nil end
+  if not r.found then return true end
+  if r.red then return false end
+  local names = Items.MyClassNames()
+  if not names then return true end
+  for entry in r.list:gmatch("[^,]+") do
+    local name = Plain(entry)
+    if name and names[name:lower()] then return true end
+  end
+  return nil
 end
 
 -- Set of the player's profession names, lower-cased (matches the recipe subclass names of the item API),

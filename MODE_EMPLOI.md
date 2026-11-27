@@ -54,7 +54,7 @@ Le statut de la recette ne s'applique qu'aux recettes : inutile d'ajouter « Typ
 Dans « Type d'objet », **Armure - Divers** regroupe les colliers, capes, anneaux et bijoux (les capes ne sont pas dans « Tissu »).
 L'addon lit ce que le jeu affiche sur l'objet (« Déjà connu ») et compare avec vos métiers. Il ne regarde pas votre niveau de métier :
 une recette de votre métier trop difficile pour l'instant est quand même « pas encore apprise, de mon métier ».
-Les livres de recette sans métier (type « Livre ») comptent comme étant de votre métier.
+Les livres de classe (type « Livre » : livre, codex, tome...) ne comptent comme étant de votre métier que si votre classe peut les apprendre : l'addon lit leur ligne « Classes : », et un livre d'une autre classe compte comme « pas de mon métier ».
 
 ### Le score de stats : « est-ce mieux que mon équipement ? »
 
